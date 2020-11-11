@@ -1,36 +1,15 @@
-#Copyright (c) 2019, 2020, Oracle and/or its affiliates.
-#
-#Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
-#
-# WebLogic on Docker Default Domain
-#
-# Domain, as defined in DOMAIN_NAME, will be created in this script. Name defaults to 'base_domain'.
-#
-# Since : June, 2019
-# Author: monica.riccelli@oracle.com
-# ===================================
-
 import os
 import socket
 
-def getEnvVar(var):
-  val=os.environ.get(var)
-  if val==None:
-    print "ERROR: Env var ",var, " not set."
-    sys.exit(1)
-  return val
-
-# This python script is used to create a WebLogic domain
-domain_name                   = DOMAIN_NAME
-admin_server_name             = ADMIN_NAME
-admin_port                    = int(ADMIN_LISTEN_PORT)
-server_port                   = int(MANAGED_SERVER_PORT)
-managed_server_name_base      = MANAGED_SERVER_NAME_BASE
-number_of_ms                  = int(CONFIGURED_MANAGED_SERVER_COUNT)
+domain_name                   = os.environ.get("DOMAIN_NAME")
+admin_server_name             = os.environ.get("ADMIN_NAME")
+admin_port                    = int(os.environ.get("ADMIN_LISTEN_PORT"))
+server_port                   = int(os.environ.get("MANAGED_SERVER_PORT"))
+managed_server_name_base      = os.environ.get("MANAGED_SERVER_NAME_BASE")
+number_of_ms                  = int(os.environ.get("CONFIGURED_MANAGED_SERVER_COUNT"))
 domain_path                   = os.environ.get("DOMAIN_HOME")
-cluster_name                  = CLUSTER_NAME
-cluster_type                  = CLUSTER_TYPE
-production_mode               = PRODUCTION_MODE
+cluster_name                  = os.environ.get("CLUSTER_NAME")
+production_mode               = os.environ.get("PRODUCTION_MODE")
 
 print('domain_path              : [%s]' % domain_path);
 print('domain_name              : [%s]' % domain_name);
@@ -39,7 +18,6 @@ print('admin_port               : [%s]' % admin_port);
 print('cluster_name             : [%s]' % cluster_name);
 print('server_port              : [%s]' % server_port);
 print('number_of_ms             : [%s]' % number_of_ms);
-print('cluster_type             : [%s]' % cluster_type);
 print('managed_server_name_base : [%s]' % managed_server_name_base);
 print('production_mode          : [%s]' % production_mode);
 
@@ -63,8 +41,8 @@ set('Name', admin_server_name)
 # Set the admin user's username and password
 # ==========================================
 cd('/Security/%s/User/weblogic' % domain_name)
-cmo.setName(username)
-cmo.setPassword(password)
+cmo.setName('weblogic')
+cmo.setPassword('weblogiC1!')
 
 # Write the domain and close the domain template
 # ==============================================
@@ -76,45 +54,26 @@ setOption('OverwriteDomain', 'true')
 cd('/')
 cl=create(cluster_name, 'Cluster')
 
-if cluster_type == "CONFIGURED":
+print('Configuring Dynamic Cluster %s' % cluster_name)
 
-  # Create managed servers
-  for index in range(0, number_of_ms):
-    cd('/')
-    msIndex = index+1
+templateName = cluster_name + "-template"
+print('Creating Server Template: %s' % templateName)
+st1=create(templateName, 'ServerTemplate')
+print('Done creating Server Template: %s' % templateName)
+cd('/ServerTemplates/%s' % templateName)
+cmo.setListenPort(server_port)
+cmo.setCluster(cl)
 
-    cd('/')
-    name = '%s%s' % (managed_server_name_base, msIndex)
+cd('/Clusters/%s' % cluster_name)
+create(cluster_name, 'DynamicServers')
+cd('DynamicServers/%s' % cluster_name)
+set('ServerTemplate', st1)
+set('ServerNamePrefix', managed_server_name_base)
+set('DynamicClusterSize', number_of_ms)
+set('MaxDynamicClusterSize', number_of_ms)
+set('CalculatedListenPorts', false)
 
-    create(name, 'Server')
-    cd('/Servers/%s/' % name )
-    print('managed server name is %s' % name);
-    set('ListenPort', server_port)
-    set('NumOfRetriesBeforeMSIMode', 0)
-    set('RetryIntervalBeforeMSIMode', 1)
-    set('Cluster', cluster_name)
-
-else:
-  print('Configuring Dynamic Cluster %s' % cluster_name)
-
-  templateName = cluster_name + "-template"
-  print('Creating Server Template: %s' % templateName)
-  st1=create(templateName, 'ServerTemplate')
-  print('Done creating Server Template: %s' % templateName)
-  cd('/ServerTemplates/%s' % templateName)
-  cmo.setListenPort(server_port)
-  cmo.setCluster(cl)
-
-  cd('/Clusters/%s' % cluster_name)
-  create(cluster_name, 'DynamicServers')
-  cd('DynamicServers/%s' % cluster_name)
-  set('ServerTemplate', st1)
-  set('ServerNamePrefix', managed_server_name_base)
-  set('DynamicClusterSize', number_of_ms)
-  set('MaxDynamicClusterSize', number_of_ms)
-  set('CalculatedListenPorts', false)
-
-  print('Done setting attributes for Dynamic Cluster: %s' % cluster_name);
+print('Done setting attributes for Dynamic Cluster: %s' % cluster_name);
 
 # Write Domain
 # ============
@@ -126,38 +85,6 @@ print 'Domain Created'
 readDomain(domain_path)
 cd('/')
 setOption('ServerStartMode',production_mode)
-
-#Create Persistent Store
-#================================================
-fileStoreName = 'DistributedFileStore'
-jmsServerName = 'DistributedJmsServer'
-jmsSystemResourceName = '%s-JmsSystemRessource' % cluster_name
-queueName = 'Q1'
-subdeploymentName = '%s-SubDeployment' % cluster_name
-
-cd('/')
-filestore = create(fileStoreName, 'FileStore')
-filestore.setDistributionPolicy('Distributed')
-filestore.setTargets([cl])
-
-jmsServer = create(jmsServerName, 'JMSServer')
-jmsServer.setPersistentStore(filestore)
-jmsServer.setTargets([cl])
-
-jmsSystemResource = create(jmsSystemResourceName, 'JMSSystemResource')
-jmsSystemResource.setTargets([cl])
-
-#jmsSystemResource.setJMSResource(jmsResource)
-
-cd('JMSSystemResource/%s/JmsResource/NO_NAME_0' % jmsSystemResourceName)
-jmsQueue = create(queueName, 'UniformDistributedQueue')
-jmsQueue.setJNDIName(queueName)
-jmsQueue.setSubDeploymentName(subdeploymentName)
-
-cd('/JMSSystemResource/%s' % jmsSystemResourceName)
-subdeployment = create(subdeploymentName, 'SubDeployment')
-subdeployment.setTargets([jmsServer])
-#subdeployment.addTarget(jmsServer)
 
 updateDomain()
 closeDomain()

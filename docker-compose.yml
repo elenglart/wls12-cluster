@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  wls-admin:
+    container_name: admin
+    build: .
+    ports:
+      - "7001:7001"
+    volumes:
+      - wls-content:/var/opt/oracle/domains
+  wls-managed:
+    build: .
+    environment: 
+      - ADMIN_HOST=admin
+    volumes:
+        - wls-content:/var/opt/oracle/domains
+    command: /bin/bash /var/opt/oracle/scripts/startManagedServer.sh
+volumes:
+  wls-content:
