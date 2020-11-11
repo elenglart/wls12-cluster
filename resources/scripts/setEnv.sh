@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ -e "${DOMAIN_PROPERTIES_FILE}" ]; then
+   while read line; do
+      export $line
+   done <"${DOMAIN_PROPERTIES_FILE}"
+fi
+
+DOMAIN_ROOT=${DOMAIN_ROOT:-default}
+DOMAIN_NAME=${DOMAIN_NAME:-default}
+SEC_PROPERTIES_FILE=${SEC_PROPERTIES_FILE:-default}
+ADMIN_NAME=${ADMIN_NAME:-default}
+DOMAIN_NAME=${ADMIN_NAME:-default}
+ADMIN_NAME=${ADMIN_NAME:-default}
+int(ADMIN_LISTEN_PORT)=${ADMIN_NAME:-default}
+int(MANAGED_SERVER_PORT)=${ADMIN_NAME:-default}
+MANAGED_SERVER_NAME_BASE=${ADMIN_NAME:-default}
+int(CONFIGURED_MANAGED_SERVER_COUNT)=${ADMIN_NAME:-default}
+os.environ.get("DOMAIN_HOME")=${ADMIN_NAME:-default}
+CLUSTER_NAME=${ADMIN_NAME:-default}
+CLUSTER_TYPE=${ADMIN_NAME:-default}
+PRODUCTION_MODE=${ADMIN_NAME:-default}
