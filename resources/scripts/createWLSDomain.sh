@@ -40,6 +40,13 @@ if [ ! -f ${DOMAIN_HOME}/servers/${ADMIN_NAME}/logs/${ADMIN_NAME}.log ]; then
    mkdir -p ${DOMAIN_HOME}/servers/${ADMIN_NAME}/security/
    echo "username=weblogic" >> ${DOMAIN_HOME}/servers/${ADMIN_NAME}/security/boot.properties
    echo "password=weblogiC1!" >> ${DOMAIN_HOME}/servers/${ADMIN_NAME}/security/boot.properties
+
+   # Si il existe des scripts wlst additionnels dans le répertoire wlst, on les execute
+   wlstScriptList=$(find /var/opt/oracle/wlst -type f -name '*.py' | grep -v /var/opt/oracle/wlst/create-wls-domain.py)
+   while IFS= read -r wlstScript ; do 
+      echo "Execution d'un script WLST additionnel : $wlstScript"
+      wlst.sh -skipWLSModuleScanning $wlstScript
+   done <<< "$wlstScriptList"
 fi
 
 #Set Java options
