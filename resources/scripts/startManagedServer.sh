@@ -26,6 +26,10 @@ function getManagedName {
   done
 }
 
+#Pour laisser le temps à l'admin de renseigner son hostname
+sleep 1
+export ADMIN_HOST=$(cat "${DOMAIN_ROOT}/adminHostName")
+
 # Wait for AdminServer to become available for any subsequent operation
 /var/opt/oracle/scripts/waitForAdminServer.sh
 export MANAGED_NAME="$(getManagedName)"

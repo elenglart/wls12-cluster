@@ -9,8 +9,6 @@ services:
       - wls-content:/var/opt/oracle/domains
   wls-managed:
     build: .
-    environment: 
-      - ADMIN_HOST=admin
     volumes:
         - wls-content:/var/opt/oracle/domains
     command: /bin/bash /var/opt/oracle/scripts/startManagedServer.sh

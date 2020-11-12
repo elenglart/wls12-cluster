@@ -22,6 +22,9 @@ trap _kill SIGKILL
 source /var/opt/oracle/scripts/setEnv.sh
 echo "Domain Home is:  $DOMAIN_HOME"
 
+# Pour donner le nom du noeud admin aux managed
+echo "$HOSTNAME" > "${DOMAIN_ROOT}/adminHostName"
+
 #Create the domain the first time
 if [ ! -f ${DOMAIN_HOME}/servers/${ADMIN_NAME}/logs/${ADMIN_NAME}.log ]; then
    # Create domain

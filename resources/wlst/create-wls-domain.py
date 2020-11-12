@@ -10,6 +10,7 @@ number_of_ms                  = int(os.environ.get("CONFIGURED_MANAGED_SERVER_CO
 domain_path                   = os.environ.get("DOMAIN_HOME")
 cluster_name                  = os.environ.get("CLUSTER_NAME")
 production_mode               = os.environ.get("PRODUCTION_MODE")
+cluster_address               = os.environ.get("CLUSTER_ADDRESS")
 
 print('domain_path              : [%s]' % domain_path);
 print('domain_name              : [%s]' % domain_name);
@@ -53,7 +54,7 @@ setOption('OverwriteDomain', 'true')
 # ================
 cd('/')
 cl=create(cluster_name, 'Cluster')
-
+cl.setClusterAddress(cluster_address)
 print('Configuring Dynamic Cluster %s' % cluster_name)
 
 templateName = cluster_name + "-template"
