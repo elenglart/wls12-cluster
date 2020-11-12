@@ -21,6 +21,9 @@ A la racine du projet
 - PASSWORD
 - DOMAIN_HOME
 
+## Customization du domaine
+L'ensemble des scripts WLST déposés dans le répertoire /var/opt/oracle/wlst seront executés au runtime juste après la creation du domaine. Attention, ces scripts sont executés avant le premier démarrage ; seul des opérations offline sont donc possibles.
+
 ## Démarrage des managed
 Surcharge de CMD pour pointer sur le script de démarrage de la managed : /bin/bash /var/opt/oracle/scripts/startManagedServer.sh
 
