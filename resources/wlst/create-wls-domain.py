@@ -65,6 +65,13 @@ cd('/ServerTemplates/%s' % templateName)
 cmo.setListenPort(server_port)
 cmo.setCluster(cl)
 
+channelName = 'external-channel'
+nap=create(channelName, 'NetworkAccessPoint')
+cd('NetworkAccessPoints/%s' % channelName)
+nap.setListenPort(-1)
+nap.setPublicPort(-1)
+nap.setPublicAddress('localhost')
+
 cd('/Clusters/%s' % cluster_name)
 create(cluster_name, 'DynamicServers')
 cd('DynamicServers/%s' % cluster_name)
