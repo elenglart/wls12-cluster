@@ -12,3 +12,5 @@ export USERNAME=${USERNAME:-weblogic}
 export PASSWORD=${PASSWORD:-weblogiC1!}
 export CLUSTER_ADDRESS=${CLUSTER_ADDRESS:-}
 export DOMAIN_HOME=$DOMAIN_ROOT/$DOMAIN_NAME
+
+export JAVA_OPTIONS="${JAVA_OPTIONS} -Dweblogic.rjvm.enableprotocolswitch=true"
